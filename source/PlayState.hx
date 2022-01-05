@@ -5,6 +5,7 @@ import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.group.FlxGroup;
+import flixel.text.FlxText;
 import flixel.util.FlxColor;
 
 /**
@@ -16,6 +17,7 @@ import flixel.util.FlxColor;
 class PlayState extends FlxState
 {
 	static inline var BAT_SPEED:Int = 350;
+	static inline var SCORE_PREFIX:String = "Score: ";
 
 	var _bat:FlxSprite;
 	var _ball:FlxSprite;
@@ -27,6 +29,10 @@ class PlayState extends FlxState
 	var _bottomWall:FlxSprite;
 
 	var _bricks:FlxGroup;
+
+	var _number:FlxText;
+
+	var _score:Int = 0;
 
 	override public function create():Void
 	{
@@ -63,7 +69,9 @@ class PlayState extends FlxState
 		_bottomWall = new FlxSprite(0, 239);
 		_bottomWall.makeGraphic(320, 10, FlxColor.TRANSPARENT);
 		_bottomWall.immovable = true;
-		_walls.add(_bottomWall);
+		// _walls.add(_bottomWall);
+
+		_number = new FlxText(0, 0, 100, SCORE_PREFIX + _score);
 
 		// Some bricks
 		_bricks = new FlxGroup();
@@ -92,6 +100,7 @@ class PlayState extends FlxState
 		add(_bat);
 		add(_ball);
 		add(_bricks);
+		add(_number);
 	}
 
 	override public function update(elapsed:Float):Void
@@ -150,11 +159,35 @@ class PlayState extends FlxState
 		FlxG.collide(_ball, _walls);
 		FlxG.collide(_bat, _ball, ping);
 		FlxG.collide(_ball, _bricks, hit);
+		FlxG.collide(_ball, _bottomWall, sub);
+	}
+
+	inline function check()
+	{
+		if (this._score < 0)
+		{
+			_number.color = FlxColor.RED;
+		}
+		else
+		{
+			_number.color = FlxColor.WHITE;
+		}
+	}
+
+	function sub(Ball:FlxObject, BottomWall:FlxObject):Void
+	{
+		_score -= 3;
+		_number.text = SCORE_PREFIX + _score;
+		check();
 	}
 
 	function hit(Ball:FlxObject, Brick:FlxObject):Void
 	{
 		Brick.exists = false;
+		_score += 1;
+		_number.text = SCORE_PREFIX + _score;
+
+		check();
 	}
 
 	function ping(Bat:FlxObject, Ball:FlxObject):Void
