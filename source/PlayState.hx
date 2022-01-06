@@ -5,8 +5,14 @@ import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.group.FlxGroup;
+import flixel.system.FlxSound;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import openfl.Assets;
+#if (openfl >= "4.0.0")
+import openfl.utils.AssetType;
+#end
+
 
 /**
  * Atari 2600 Breakout
@@ -31,6 +37,11 @@ class PlayState extends FlxState
 	var _bricks:FlxGroup;
 
 	var _number:FlxText;
+
+	var _brickSound:FlxSound;
+	var _wallSound:FlxSound;
+	var _batSound:FlxSound;
+	var _subSound:FlxSound;
 
 	var _score:Int = 0;
 
@@ -73,20 +84,25 @@ class PlayState extends FlxState
 
 		_number = new FlxText(0, 0, 100, SCORE_PREFIX + _score);
 
+		_brickSound = FlxG.sound.load(AssetPaths.di__wav);
+		_wallSound = FlxG.sound.load(AssetPaths.lose__wav);
+		_batSound = FlxG.sound.load(AssetPaths.hurt__wav);
+		_subSound = FlxG.sound.load(AssetPaths.miss__wav);
+
 		// Some bricks
 		_bricks = new FlxGroup();
 
 		var bx:Int = 10;
 		var by:Int = 30;
 
-		var brickColours:Array<Int> = [0xffd03ad1, 0xfff75352, 0xfffd8014, 0xffff9024, 0xff05b320, 0xff6d65f6];
+		var brickColors:Array<Int> = [0xffd03ad1, 0xfff75352, 0xfffd8014, 0xffff9024, 0xff05b320, 0xff6d65f6];
 
 		for (y in 0...6)
 		{
 			for (x in 0...20)
 			{
 				var tempBrick:FlxSprite = new FlxSprite(bx, by);
-				tempBrick.makeGraphic(15, 15, brickColours[y]);
+				tempBrick.makeGraphic(15, 15, brickColors[y]);
 				tempBrick.immovable = true;
 				_bricks.add(tempBrick);
 				bx += 15;
@@ -156,7 +172,7 @@ class PlayState extends FlxState
 			_bat.x = 270;
 		}
 
-		FlxG.collide(_ball, _walls);
+		FlxG.collide(_ball, _walls, wall);
 		FlxG.collide(_bat, _ball, ping);
 		FlxG.collide(_ball, _bricks, hit);
 		FlxG.collide(_ball, _bottomWall, sub);
@@ -174,20 +190,9 @@ class PlayState extends FlxState
 		}
 	}
 
-	function sub(Ball:FlxObject, BottomWall:FlxObject):Void
+	function wall(Ball:FlxObject, BottomWall:FlxObject):Void
 	{
-		_score -= 3;
-		_number.text = SCORE_PREFIX + _score;
-		check();
-	}
-
-	function hit(Ball:FlxObject, Brick:FlxObject):Void
-	{
-		Brick.exists = false;
-		_score += 1;
-		_number.text = SCORE_PREFIX + _score;
-
-		check();
+		_wallSound.play();
 	}
 
 	function ping(Bat:FlxObject, Ball:FlxObject):Void
@@ -214,5 +219,22 @@ class PlayState extends FlxState
 			// A little random X to stop it bouncing up!
 			Ball.velocity.x = 2 + FlxG.random.int(0, 8);
 		}
+		_batSound.play(true);
+	}
+	function hit(Ball:FlxObject, Brick:FlxObject):Void
+	{
+		Brick.exists = false;
+		_score += 1;
+		_number.text = SCORE_PREFIX + _score;
+		check();
+		_brickSound.play(true);
+	}
+
+	function sub(Ball:FlxObject, BottomWall:FlxObject):Void
+	{
+		_score -= 3;
+		_number.text = SCORE_PREFIX + _score;
+		check();
+		_subSound.play(true);
 	}
 }
