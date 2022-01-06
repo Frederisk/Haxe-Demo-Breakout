@@ -17,25 +17,33 @@ import openfl.utils.AssetType;
 /**
  * Atari 2600 Breakout
  *
+ *
  * @author Davey, Photon Storm
  * @link http://www.photonstorm.com/archives/1290/video-of-me-coding-breakout-in-flixel-in-20-mins
  */
+// sourcePlayState.hx#L25-
 class PlayState extends FlxState
 {
+	// 在該類的頂端是一些遊戲場景內的物件：
+
 	static inline var BAT_SPEED:Int = 350;
 	static inline var SCORE_PREFIX:String = "Score: ";
 
 	var _bat:FlxSprite;
 	var _ball:FlxSprite;
-
+	// 工具類別，其可以將多個具體物件組合在一起，
+	// 並且可以提供一些方法來操作這些具體物件，
+	// 將物件組合在一起有助於遊戲場景的結構化。
 	var _walls:FlxGroup;
+	// 遊戲場景內的物件，以FlxSprite類別來參與交互。
 	var _leftWall:FlxSprite;
 	var _rightWall:FlxSprite;
 	var _topWall:FlxSprite;
 	var _bottomWall:FlxSprite;
 
 	var _bricks:FlxGroup;
-
+	// 本內容聲音等不可交互的遊戲資產，
+	// 都是由FlxText、FlxSound等類別來容納。
 	var _number:FlxText;
 
 	var _brickSound:FlxSound;
@@ -45,6 +53,11 @@ class PlayState extends FlxState
 
 	var _score:Int = 0;
 
+	/**
+	 * create方法提供了對該由遊戲場景的構造，
+	 * 在該類實作後，該方法會首先呼叫一次，
+	 * 在該方法中需要初始化所有的遊戲物件。
+	 */
 	override public function create():Void
 	{
 		FlxG.mouse.visible = false;
@@ -118,7 +131,9 @@ class PlayState extends FlxState
 		add(_bricks);
 		add(_number);
 	}
-
+	/**
+	 * update則會在遊戲場景更新時每次呼叫。
+	 */
 	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
@@ -178,7 +193,7 @@ class PlayState extends FlxState
 		FlxG.collide(_ball, _bottomWall, sub);
 	}
 
-	inline function check()
+	inline function check():Void
 	{
 		if (this._score < 0)
 		{
